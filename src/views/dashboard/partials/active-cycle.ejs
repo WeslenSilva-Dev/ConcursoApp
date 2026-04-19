@@ -1,0 +1,47 @@
+<% if (activeCycle) { %>
+  <% const currentSub = activeCycle.subjects[activeCycle.currentIndex]; %>
+  <div class="card dashboard-hero-card">
+    <div class="dashboard-hero-card__body">
+      <div class="dashboard-hero-card__content">
+        <div class="dashboard-hero-card__eyebrow">Ciclo Atual</div>
+        <div class="dashboard-hero-card__title"><%= activeCycle.name %></div>
+
+        <div class="dashboard-hero-card__progress">
+          <div class="dashboard-hero-card__progress-meta">
+            <span>Progresso do ciclo</span>
+            <span><%= activeCycle.currentIndex %> de <%= activeCycle.subjects.length %> disciplinas</span>
+          </div>
+          <div class="cycle-progress">
+            <div class="cycle-progress-fill" style="width: <%= Math.round((activeCycle.currentIndex / activeCycle.subjects.length) * 100) %>%"></div>
+          </div>
+        </div>
+
+        <% if (currentSub) { %>
+          <div class="dashboard-hero-card__subject">
+            <div>
+              <div class="dashboard-hero-card__subject-label">Proxima disciplina</div>
+              <div class="dashboard-hero-card__subject-name"><%= currentSub.name %></div>
+              <div class="dashboard-hero-card__subject-time"><%= currentSub.durationMinutes %> minutos</div>
+            </div>
+          </div>
+        <% } %>
+      </div>
+
+      <a href="/sessions/focus" class="btn btn--primary btn--lg dashboard-hero-card__action">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Iniciar estudo
+      </a>
+    </div>
+  </div>
+<% } else { %>
+  <div class="card dashboard-hero-card dashboard-hero-card--empty">
+    <div class="dashboard-empty-state">
+      <div class="dashboard-empty-state__icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </div>
+      <div class="dashboard-empty-state__title">Nenhum ciclo ativo</div>
+      <p class="dashboard-empty-state__copy">Crie e ative um ciclo de estudos para comecar.</p>
+      <a href="/cycles/create" class="btn btn--primary">Criar ciclo</a>
+    </div>
+  </div>
+<% } %>

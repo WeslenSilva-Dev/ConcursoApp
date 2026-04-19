@@ -1,0 +1,51 @@
+<div class="dashboard-col dashboard-col--full">
+  <div class="card">
+    <div class="card-header dashboard-agenda-header">
+      <h2 class="card-title">Agenda Mensal</h2>
+      <div class="dashboard-agenda-nav">
+        <button class="btn btn--outline btn--xs" onclick="agendaManager.prevMonth()">◀</button>
+        <span id="agendaMonthLabel" class="dashboard-agenda-label">Mes</span>
+        <button class="btn btn--outline btn--xs" onclick="agendaManager.nextMonth()">▶</button>
+      </div>
+    </div>
+    <div class="agenda-weekdays">
+      <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sab</div>
+    </div>
+    <div class="agenda-grid" id="agendaGrid"></div>
+  </div>
+</div>
+
+<div class="modal" id="agendaModal" onclick="if (event.target === this) this.classList.remove('modal--open')">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title" id="agendaModalTitle">Agenda</h2>
+      <button class="modal-close" onclick="document.getElementById('agendaModal').classList.remove('modal--open')">×</button>
+    </div>
+
+    <div id="agendaEventList" class="dashboard-agenda-events"></div>
+
+    <form id="agendaForm" onsubmit="agendaManager.saveEvent(event)">
+      <h3 class="dashboard-agenda-form-title">Novo Evento</h3>
+      <input type="hidden" id="agendaDate" required>
+      <div class="form-group">
+        <label class="form-label">Tipo de Evento</label>
+        <select class="form-input" id="agendaType" required>
+          <option value="estudo">Estudo Especifico</option>
+          <option value="simulado">Simulado</option>
+          <option value="revisao">Revisao Geral</option>
+          <option value="edital">Lancamento de Edital</option>
+          <option value="descanso">Descanso (Folga)</option>
+          <option value="outro">Outro</option>
+        </select>
+        <p class="dashboard-agenda-hint">Mais de 1 descanso em 7 dias zera a sequencia.</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Atividade</label>
+        <input type="text" class="form-input" id="agendaTitle" required maxlength="100" placeholder="Ex: Simulado INSS">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn--primary dashboard-agenda-submit">Adicionar</button>
+      </div>
+    </form>
+  </div>
+</div>

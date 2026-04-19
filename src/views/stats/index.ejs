@@ -1,0 +1,76 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Estatísticas</h1>
+    <p class="page-subtitle">Acompanhe seu desempenho e progresso</p>
+  </div>
+</div>
+
+<%- include('partials/metrics') %>
+
+<div class="card mb-4">
+  <div class="card-header">
+    <h2 class="card-title">Horas estudadas (ultimos 7 dias)</h2>
+  </div>
+  <div class="chart-wrap">
+    <canvas id="weekStatsChart"></canvas>
+  </div>
+</div>
+
+<div class="dashboard-grid">
+  <div class="dashboard-col">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Tempo por disciplina (este mes)</h2>
+      </div>
+      <% const subjectBreakdown = JSON.parse(subjectStats); %>
+      <% if (subjectBreakdown.length === 0) { %>
+        <div class="empty-state empty-state--sm">Sem dados suficientes neste mes.</div>
+      <% } else { %>
+        <div class="stats-breakdown">
+          <% subjectBreakdown.forEach((subject, index) => { %>
+            <% const colors = ['var(--accent)', 'var(--teal)', 'var(--orange)', 'var(--pink)', 'var(--success)', 'var(--text-secondary)']; %>
+            <div>
+              <div class="stats-breakdown__row">
+                <span class="stats-breakdown__name"><%= subject.name %></span>
+                <span class="stats-breakdown__meta"><%= subject.hours %>h (<%= subject.percent %>%)</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width:<%= subject.percent %>%; background:<%= colors[index % colors.length] %>"></div>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div class="dashboard-col">
+    <div class="card mb-4">
+      <div class="card-header">
+        <h2 class="card-title">Evolucao Mensal (Horas)</h2>
+      </div>
+      <div class="chart-wrap chart-wrap--doughnut">
+        <canvas id="monthlyStatsChart"></canvas>
+      </div>
+    </div>
+
+    <div class="card stats-review-card">
+      <div>
+        <div class="stats-review-card__label">Revisões Concluídas</div>
+        <div class="stats-review-card__value"><%= completedReviews %> <span>/ <%= totalReviews %></span></div>
+      </div>
+      <div class="stats-review-card__icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  window.statsData = {
+    dailyLabels: <%- dailyLabels %>,
+    dailyData: <%- dailyData %>,
+    monthlyLabels: <%- monthlyLabels %>,
+    monthlyData: <%- monthlyData %>
+  };
+</script>

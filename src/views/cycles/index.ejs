@@ -1,0 +1,93 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Meus Ciclos</h1>
+    <p class="page-subtitle">Organize suas disciplinas em ciclos de estudo</p>
+  </div>
+  <a href="/cycles/create" class="btn btn--primary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Novo Ciclo
+  </a>
+</div>
+
+<% if (cycles.length === 0) { %>
+  <div class="empty-full">
+    <span class="empty-full-icon" style="color:var(--text-muted);">
+      <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+    </span>
+    <h2>Nenhum ciclo criado ainda</h2>
+    <p>Crie um ciclo com suas disciplinas para estudar de forma organizada e sistemática.</p>
+    <a href="/cycles/create" class="btn btn--primary btn--lg">Criar meu primeiro ciclo</a>
+  </div>
+<% } else { %>
+  <div class="cycles-grid">
+    <% cycles.forEach(cycle => { %>
+      <div class="cycle-card <%= cycle.isActive ? 'cycle-card--active' : '' %>">
+
+        <div class="cycle-card-header">
+          <div style="min-width:0; flex:1;">
+            <div class="cycle-card-name" style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+              <a href="/cycles/<%= cycle._id %>" style="color:inherit; text-decoration:none; font-weight:inherit;" title="Ver detalhes do ciclo"><%= cycle.name %></a>
+              <% if (cycle.type === 'gerado_ia') { %>
+                <span class="badge" style="font-size:0.65rem; padding:0.15rem 0.45rem; background:rgba(99,102,241,0.12); color:var(--accent); border:1px solid rgba(99,102,241,0.25);">IA</span>
+              <% } %>
+            </div>
+            <div class="cycle-card-meta">
+              <%= cycle.subjects.length %> disciplina<%= cycle.subjects.length !== 1 ? 's' : '' %> ·
+              <%= Math.floor(cycle.subjects.reduce((a,s) => a+s.durationMinutes,0)/60) %>h
+              <%= cycle.subjects.reduce((a,s) => a+s.durationMinutes,0) % 60 %>min total
+            </div>
+          </div>
+          <% if (cycle.isActive) { %>
+            <span class="badge badge--active">Ativo</span>
+          <% } %>
+        </div>
+
+        <% if (cycle.isActive) { %>
+          <div class="cycle-card-progress">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-secondary); margin-bottom:6px;">
+              <span>Progresso do ciclo</span>
+              <span><%= cycle.currentIndex %> de <%= cycle.subjects.length %> disciplinas</span>
+            </div>
+            <div class="cycle-progress-sm">
+              <div class="cycle-progress-sm-fill" style="width: <%= Math.round((cycle.currentIndex / cycle.subjects.length) * 100) %>%"></div>
+            </div>
+          </div>
+        <% } %>
+
+        <div class="cycle-subjects-preview">
+          <% cycle.subjects.slice(0, 4).forEach((s, i) => { %>
+            <div class="subject-pill-sm <%= cycle.isActive && i === cycle.currentIndex ? 'subject-pill-sm--current' : '' %>">
+              <%= s.name.length > 22 ? s.name.substring(0, 22) + '…' : s.name %>
+              <span style="opacity:0.6; margin-left:2px;"><%= s.durationMinutes %>m</span>
+            </div>
+          <% }) %>
+          <% if (cycle.subjects.length > 4) { %>
+            <div class="subject-pill-sm subject-pill-sm--more">+<%= cycle.subjects.length - 4 %> mais</div>
+          <% } %>
+        </div>
+
+        <div class="cycle-card-actions">
+          <% if (!cycle.isActive) { %>
+            <form action="/cycles/<%= cycle._id %>/activate" method="POST" style="flex:1;">
+              <button type="submit" class="btn btn--outline btn--sm btn--full">Ativar ciclo</button>
+            </form>
+          <% } else { %>
+            <a href="/sessions/focus" class="btn btn--primary btn--sm" style="flex:1; justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Iniciar estudo
+            </a>
+          <% } %>
+          <a href="/cycles/<%= cycle._id %>" class="btn btn--ghost btn--sm" title="Ver detalhes">Detalhes</a>
+          <a href="/cycles/<%= cycle._id %>/edit" class="btn btn--ghost btn--sm btn--icon" title="Editar">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </a>
+          <form action="/cycles/<%= cycle._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Excluir este ciclo?')">
+            <button type="submit" class="btn btn--ghost btn--sm btn--icon btn--danger-hover" title="Excluir">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>

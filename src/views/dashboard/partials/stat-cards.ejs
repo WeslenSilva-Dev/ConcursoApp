@@ -1,0 +1,39 @@
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon stat-icon--blue">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    </div>
+    <div>
+      <div class="stat-label">Hoje</div>
+      <div class="stat-value">
+        <% if (todayMinutes >= 60) { %>
+          <%= Math.floor(todayMinutes / 60) %>h <span class="stat-unit"><%= todayMinutes % 60 > 0 ? `${todayMinutes % 60}min` : '' %></span>
+        <% } else { %>
+          <%= todayMinutes %><span class="stat-unit">min</span>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon stat-icon--teal">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    </div>
+    <div>
+      <div class="stat-label">Meta diaria</div>
+      <div class="stat-value"><%= dailyGoalHours %>h<span class="stat-unit"> 00min</span></div>
+      <div class="stat-sub"><%= dailyProgress %>% concluida</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon stat-icon--orange">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </div>
+    <div>
+      <div class="stat-label">Sequencia</div>
+      <div class="stat-value"><%= streak %> <span class="stat-unit">dias</span></div>
+      <div class="stat-sub"><%= streak >= 7 ? 'Incrivel!' : streak >= 3 ? 'Otimo ritmo' : 'Continue assim!' %></div>
+    </div>
+  </div>
+</div>

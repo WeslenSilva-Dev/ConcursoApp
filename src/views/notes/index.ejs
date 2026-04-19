@@ -1,0 +1,131 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Anotações</h1>
+    <p class="page-subtitle">Registre insights e resumos por disciplina</p>
+  </div>
+  <button class="btn btn--primary" onclick="document.getElementById('noteModal').classList.add('modal--open')">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    Nova Anotacao
+  </button>
+</div>
+
+<% if (subjects.length > 0 || notes.length > 0) { %>
+  <div class="notes-toolbar">
+    <div class="filter-bar notes-toolbar__chips">
+      <a href="/notes" class="filter-chip <%= !activeSubject ? 'filter-chip--active' : '' %>">Todas</a>
+      <% subjects.forEach((subject) => { %>
+        <a href="/notes?subject=<%= encodeURIComponent(subject) %>" class="filter-chip <%= activeSubject === subject ? 'filter-chip--active' : '' %>"><%= subject %></a>
+      <% }) %>
+    </div>
+    <div class="notes-toolbar__filters">
+      <input type="date" id="noteDateFilter" class="form-input" onchange="runFilters()" title="Filtrar por data especifica">
+      <input type="text" id="noteSearchFilter" class="form-input" placeholder="Buscar nas anotacoes..." onkeyup="runFilters()">
+    </div>
+  </div>
+<% } %>
+
+<% if (error) { %>
+  <div class="alert alert--danger"><%= error %></div>
+<% } %>
+
+<% if (notes.length === 0) { %>
+  <div class="empty-full">
+    <div class="empty-full-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    </div>
+    <h2>Nenhuma anotacao ainda</h2>
+    <p>Crie anotacoes por disciplina para fixar o conteudo estudado.</p>
+    <button class="btn btn--primary btn--lg" onclick="document.getElementById('noteModal').classList.add('modal--open')">Criar primeira anotacao</button>
+  </div>
+<% } else { %>
+  <div class="notes-grid">
+    <% notes.forEach((note) => { %>
+      <% const noteDate = note.date || note.createdAt; %>
+      <div class="note-card">
+        <div class="note-card-header">
+          <span class="note-subject-tag"><%= note.subject %></span>
+          <div class="note-card-actions">
+            <button class="btn btn--ghost btn--xs btn--icon" onclick="editNote('<%= note._id %>')" title="Editar">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <form action="/notes/<%= note._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Excluir esta anotacao?')">
+              <button type="submit" class="btn btn--ghost btn--xs btn--icon btn--danger-hover" title="Excluir">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+        <div class="note-title"><%= note.title %></div>
+        <div class="note-content"><%= note.content.length > 200 ? `${note.content.substring(0, 200)}...` : note.content %></div>
+        <div class="note-date" data-raw-date="<%= new Date(noteDate).toISOString().split('T')[0] %>">
+          <%= new Date(noteDate).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }) %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+<% } %>
+
+<div class="modal" id="noteModal" onclick="if (event.target === this) this.classList.remove('modal--open')">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title">Nova Anotacao</h2>
+      <button class="modal-close" onclick="document.getElementById('noteModal').classList.remove('modal--open')">×</button>
+    </div>
+    <form action="/notes" method="POST" id="noteForm">
+      <div class="form-group">
+        <label class="form-label" for="subject">Disciplina</label>
+        <input class="form-input" type="text" id="subject" name="subject" placeholder="Ex: Direito Constitucional" list="subjectsSuggestions" required>
+        <datalist id="subjectsSuggestions">
+          <% subjects.forEach((subject) => { %><option value="<%= subject %>"><% }) %>
+        </datalist>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="noteDate">Data</label>
+        <input class="form-input" type="date" id="noteDate" name="date" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="noteTitle">Titulo</label>
+        <input class="form-input" type="text" id="noteTitle" name="title" placeholder="Titulo da anotacao" required maxlength="200">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="content">Conteudo</label>
+        <textarea class="form-input form-textarea" id="content" name="content" placeholder="Suas anotacoes aqui..." required rows="6"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" onclick="document.getElementById('noteModal').classList.remove('modal--open')">Cancelar</button>
+        <button type="submit" class="btn btn--primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal" id="editNoteModal" onclick="if (event.target === this) this.classList.remove('modal--open')">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title">Editar Anotacao</h2>
+      <button class="modal-close" onclick="document.getElementById('editNoteModal').classList.remove('modal--open')">×</button>
+    </div>
+    <form id="editNoteForm" method="POST">
+      <div class="form-group">
+        <label class="form-label">Disciplina</label>
+        <input class="form-input" type="text" id="editSubject" name="subject" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <input class="form-input" type="date" id="editDate" name="date" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Titulo</label>
+        <input class="form-input" type="text" id="editTitle" name="title" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Conteudo</label>
+        <textarea class="form-input form-textarea" id="editContent" name="content" rows="6" required></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn--ghost" onclick="document.getElementById('editNoteModal').classList.remove('modal--open')">Cancelar</button>
+        <button type="submit" class="btn btn--primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>

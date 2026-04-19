@@ -1,0 +1,78 @@
+<div class="focus-page">
+  <!-- Header bar -->
+  <div class="focus-header">
+    <a href="/dashboard" class="focus-back">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Dashboard
+    </a>
+    <div class="focus-cycle-name"><%= activeCycle.name %></div>
+    <div class="focus-progress-text"><%= subjectIndex + 1 %> / <%= totalSubjects %></div>
+  </div>
+
+  <!-- Main focus area -->
+  <div class="focus-main">
+    <div class="focus-subject-label">Disciplina atual</div>
+    <div class="focus-subject-name" id="focusSubjectName"><%= currentSubject.name %></div>
+    <div style="font-size:0.875rem; color:var(--text-secondary); margin-bottom: 2rem; font-weight:600;" id="totalSessionTimeLeft">
+      Total restante: <%= currentSubject.durationMinutes %>m
+    </div>
+
+    <!-- Circular Timer -->
+    <div class="timer-wrap">
+      <svg class="timer-ring" viewBox="0 0 220 220">
+        <circle class="timer-ring-bg" cx="110" cy="110" r="100"/>
+        <circle class="timer-ring-fill" id="timerCircle" cx="110" cy="110" r="100"
+          stroke-dasharray="628.3" stroke-dashoffset="0"/>
+      </svg>
+      <div class="timer-display">
+        <div class="timer-time" id="timerDisplay">
+          <%= String(Math.floor(currentSubject.durationMinutes)).padStart(2,'0') %>:<%= '00' %>
+        </div>
+        <div class="timer-status" id="timerStatus">Pronto</div>
+      </div>
+    </div>
+
+    <!-- Timer Controls -->
+    <div class="focus-controls">
+      <button class="focus-btn focus-btn--secondary" id="btnAbandon" onclick="abandonSession()" title="Abandonar e voltar">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+
+      <button class="focus-btn focus-btn--primary" id="btnStartPause" onclick="toggleTimer()">
+        <svg id="iconPlay" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        <svg id="iconPause" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+      </button>
+
+      <button class="focus-btn focus-btn--secondary" id="btnFinish" onclick="finishSession()" title="Finalizar sessão">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+    </div>
+
+    <div style="display:flex; justify-content:center; gap:0.5rem; margin-top:2rem; margin-bottom:1.5rem;">
+      <button class="btn btn--outline btn--xs" onclick="setPomodoroPreset(25, 5)">25/5 min</button>
+      <button class="btn btn--outline btn--xs" onclick="setPomodoroPreset(50, 10)">50/10 min</button>
+      <button class="btn btn--outline btn--xs" onclick="setPomodoroPreset(90, 15)">90/15 min</button>
+    </div>
+
+    <!-- Subjects queue -->
+    <div class="focus-queue">
+      <% activeCycle.subjects.forEach((s, i) => { %>
+        <div class="focus-queue-item <%= i === subjectIndex ? 'focus-queue-item--current' : i < subjectIndex ? 'focus-queue-item--done' : '' %>">
+          <% if (i < subjectIndex) { %>✓<% } else if (i === subjectIndex) { %>▶<% } else { %><%= i + 1 %><% } %>
+          <span><%= s.name %></span>
+          <span class="focus-queue-time"><%= s.durationMinutes %>m</span>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden data for JS -->
+<div id="focusData"
+  data-cycle-id="<%= activeCycle._id %>"
+  data-subject="<%= currentSubject.name %>"
+  data-duration="<%= currentSubject.durationMinutes %>"
+  data-session-id="<%= activeSession ? activeSession._id : '' %>"
+  data-session-start="<%= activeSession ? activeSession.startTime.getTime() : '' %>"
+  style="display:none"
+></div>

@@ -1,0 +1,26 @@
+<%- include('partials/header') %>
+<%- include('partials/stat-cards') %>
+<%- include('partials/active-cycle') %>
+
+<div class="dashboard-grid">
+  <div class="dashboard-col">
+    <%- include('partials/reviews-card') %>
+    <%- include('partials/goals-card') %>
+  </div>
+
+  <div class="dashboard-col">
+    <%- include('partials/charts-card') %>
+  </div>
+
+  <%- include('partials/agenda-card') %>
+</div>
+
+<script>
+  window.dashboardData = {
+    chartLabels: <%- chartLabels %>,
+    chartData: <%- chartData %>,
+    subjectLabels: <%- subjectLabels %>,
+    subjectData: <%- subjectData %>,
+    calendarDays: <%- calendarDays %>
+  };
+</script>

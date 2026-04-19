@@ -1,0 +1,53 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Editar Ciclo</h1>
+    <p class="page-subtitle"><%= cycle.name %></p>
+  </div>
+  <a href="/cycles" class="btn btn--ghost">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    Voltar
+  </a>
+</div>
+
+<% if (locals.error && error) { %>
+  <div class="alert alert--danger"><%= error %></div>
+<% } %>
+
+<div style="max-width: 680px;">
+  <div class="form-card">
+    <form action="/cycles/<%= cycle._id %>?_method=PUT" method="POST" id="cycleForm" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="cycleName">Nome do ciclo</label>
+        <input class="form-input" type="text" id="cycleName" name="name" value="<%= cycle.name %>" minlength="3" maxlength="100" required>
+      </div>
+
+      <div class="form-section-title">Disciplinas</div>
+
+      <div id="subjectsList" data-initial-count="<%= cycle.subjects.length %>">
+        <% cycle.subjects.forEach((subject, index) => { %>
+          <div class="subject-row" id="sr-<%= index %>">
+            <div class="subject-row-num"><%= index + 1 %></div>
+            <input class="form-input" type="text" name="subjects[name]" value="<%= subject.name %>" placeholder="Nome da disciplina" minlength="2" maxlength="100" required style="flex:1;">
+            <div class="subject-row-time">
+              <input class="form-input form-input--sm" type="number" name="subjects[duration]" value="<%= subject.durationMinutes %>" min="1" max="480" step="1" required>
+              <span class="form-input-suffix">min</span>
+            </div>
+            <button type="button" class="btn btn--ghost btn--xs btn--icon" data-remove-subject="<%= index %>" title="Remover">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        <% }) %>
+      </div>
+
+      <button type="button" class="btn btn--ghost btn--add" data-add-subject>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Adicionar disciplina
+      </button>
+
+      <div class="form-actions">
+        <a href="/cycles" class="btn btn--ghost">Cancelar</a>
+        <button type="submit" class="btn btn--primary">Salvar Alteracoes</button>
+      </div>
+    </form>
+  </div>
+</div>

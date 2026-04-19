@@ -1,0 +1,149 @@
+<div class="cycles-create">
+  <div class="page-header cycles-create__header">
+    <div class="cycles-create__intro">
+      <h1 class="page-title">Criar Ciclo</h1>
+      <p class="page-subtitle">Gere um plano com IA a partir do edital ou monte o ciclo manualmente</p>
+    </div>
+    <a href="/cycles" class="btn btn--ghost cycles-create__back">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Voltar
+    </a>
+  </div>
+
+  <% if (locals.error && error) { %>
+    <div class="alert alert--danger"><%= error %></div>
+  <% } %>
+
+  <div class="form-card" id="aiCycleSection">
+    <div class="cycles-create__card-head">
+      <div>
+        <h2 class="cycles-create__h2">Gerar ciclo automaticamente</h2>
+        <p class="cycles-create__lead">
+          Envie o PDF/TXT do edital, cole trechos ou informe disciplinas com peso: a IA usa isso no servidor (chave Gemini so no backend). Se a API falhar, o sistema tenta um plano alternativo local quando houver disciplinas estruturadas.
+        </p>
+      </div>
+      <span class="badge cycles-create__badge-ia">IA</span>
+    </div>
+
+    <div id="aiCycleAlert" class="alert alert--danger" hidden></div>
+
+    <form id="aiCycleForm" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="aiCycleName">Nome do ciclo (opcional)</label>
+        <input class="form-input" type="text" id="aiCycleName" maxlength="100" placeholder="Ex.: Ciclo TJSP — 1ª fase" autocomplete="off" autofocus>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="aiInstrucoesUsuario">Instrucoes para a IA (opcional)</label>
+        <textarea class="form-input" id="aiInstrucoesUsuario" rows="3" maxlength="2000" placeholder="Ex.: Quero estudar para o cargo de Analista Judiciario (nao para tecnico). Focar na prova discursiva."></textarea>
+        <p class="form-hint">Use para indicar <strong>cargo</strong>, <strong>vaga</strong> ou <strong>foco</strong> quando o edital tiver mais de uma opcao. Limite de 2000 caracteres.</p>
+      </div>
+
+      <div class="form-section-title">Disciplinas do edital</div>
+      <p class="form-hint" style="margin-bottom:1rem; margin-top:-0.5rem;">
+        Nome e peso de <strong>1 a 5</strong> (5 = mais importante neste ciclo). Pode deixar em branco se for usar so PDF/texto.
+      </p>
+
+      <div id="aiEditalList"></div>
+
+      <button type="button" class="btn btn--ghost btn--add" id="aiAddEditalRow">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Adicionar disciplina
+      </button>
+
+      <div class="form-group" style="margin-top:1.25rem;">
+        <label class="form-label" for="aiEditalFile">Arquivo do edital (opcional)</label>
+        <input class="form-input" type="file" id="aiEditalFile" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown">
+        <p class="form-hint">PDF ou TXT ate 12 MB. PDFs somente-imagem (escaneados) podem nao gerar texto; nesse caso cole o edital abaixo. A leitura do PDF usa dois extratores no servidor.</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="aiEditalText">Texto do edital (opcional)</label>
+        <textarea class="form-input" id="aiEditalText" rows="4" placeholder="Cole trechos do edital aqui se preferir; pode ser usado junto com o arquivo e a lista acima."></textarea>
+      </div>
+
+      <div class="form-section-title" style="margin-top:0.5rem;">Sua rotina</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" for="aiHorasPorDia">Horas por dia</label>
+          <input class="form-input" type="number" id="aiHorasPorDia" min="0.5" max="12" step="0.5" value="2" required>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label class="form-label" for="aiDiasPorSemana">Dias por semana</label>
+          <input class="form-input" type="number" id="aiDiasPorSemana" min="1" max="7" step="1" value="6" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="aiNivel">Nivel</label>
+        <select class="form-input" id="aiNivel">
+          <option value="iniciante">Iniciante</option>
+          <option value="intermediario" selected>Intermediario</option>
+          <option value="avancado">Avancado</option>
+        </select>
+      </div>
+
+      <div class="form-actions" style="margin-top:1rem;">
+        <button type="submit" class="btn btn--primary" id="btnGenerateAi">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>
+          Gerar ciclo automaticamente
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <p class="cycles-create__or">ou</p>
+
+  <div class="form-card" id="manualCycleSection">
+    <h2 class="cycles-create__h2">Criar ciclo manualmente</h2>
+    <form action="/cycles" method="POST" id="cycleForm" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="cycleName">Nome do ciclo</label>
+        <input
+          class="form-input"
+          type="text"
+          id="cycleName"
+          name="name"
+          placeholder="Ex: Ciclo de Direito - Fase 1"
+          minlength="3"
+          maxlength="100"
+          required
+        >
+      </div>
+
+      <div class="form-section-title">Disciplinas</div>
+      <p class="form-hint" style="margin-bottom:1rem; margin-top:-0.5rem;">
+        Adicione as disciplinas na ordem que deseja estudar. O sistema seguira essa sequencia automaticamente.
+      </p>
+
+      <div id="subjectsList" data-initial-count="0"></div>
+
+      <button type="button" class="btn btn--ghost btn--add" data-add-subject id="addBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Adicionar disciplina
+      </button>
+
+      <div class="form-actions">
+        <a href="/cycles" class="btn btn--ghost">Cancelar</a>
+        <button type="submit" class="btn btn--primary" id="saveCycleBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Criar Ciclo
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card cycles-create__tip">
+    <div style="display:flex; gap:0.75rem; align-items:flex-start;">
+      <div style="color:var(--warning); flex-shrink:0;">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </div>
+      <div>
+        <div style="font-size:0.875rem; font-weight:700; margin-bottom:4px;">Dica: como montar um bom ciclo</div>
+        <p style="font-size:0.82rem; color:var(--text-secondary); line-height:1.6; margin:0;">
+          Alterne entre disciplinas de alta e baixa concentracao. Um ciclo de 5 a 8 disciplinas e ideal.
+          Comece com as mais dificeis enquanto seu foco esta no pico.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,97 @@
+<div class="page-header">
+  <div>
+    <h1 class="page-title" style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+      <%= cycle.name %>
+      <% if (cycle.type === 'gerado_ia') { %>
+        <span class="badge" style="font-size:0.65rem; padding:0.15rem 0.45rem; background:rgba(99,102,241,0.12); color:var(--accent); border:1px solid rgba(99,102,241,0.25);">Gerado com IA</span>
+      <% } %>
+    </h1>
+    <p class="page-subtitle">
+      <% if (cycle.type === 'gerado_ia' && cycle.generationSource) { %>
+        Fonte do plano:
+        <strong><%= cycle.generationSource === 'gemini' ? 'Gemini' : 'Plano local (fallback)' %></strong>
+        <% if (typeof cycle.estimatedDurationMinutes === 'number') { %>
+          · ~<%= Math.floor(cycle.estimatedDurationMinutes / 60) %>h <%= cycle.estimatedDurationMinutes % 60 %>min no total do plano
+        <% } %>
+      <% } else { %>
+        <%= cycle.subjects.length %> disciplina<%= cycle.subjects.length !== 1 ? 's' : '' %> no ciclo
+      <% } %>
+    </p>
+  </div>
+  <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+    <a href="/cycles/<%= cycle._id %>/edit" class="btn btn--ghost btn--sm">Editar</a>
+    <a href="/cycles" class="btn btn--ghost btn--sm">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Voltar
+    </a>
+  </div>
+</div>
+
+<div class="cycles-show">
+  <% if (cycle.type === 'gerado_ia' && cycle.generationContext && cycle.generationContext.userInstructions) { %>
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin-bottom:0.5rem;">Suas instrucoes na geracao</div>
+      <p style="margin:0; font-size:0.88rem; color:var(--text-secondary); line-height:1.55; white-space:pre-wrap;"><%= cycle.generationContext.userInstructions %></p>
+    </div>
+  <% } %>
+
+  <% if (cycleDays && cycleDays.length > 0) { %>
+    <div class="form-card" style="margin-bottom:1.25rem;">
+      <h2 style="font-size:1.05rem; font-weight:700; margin:0 0 1rem 0;">Plano por dia</h2>
+      <p style="font-size:0.82rem; color:var(--text-secondary); margin:-0.5rem 0 1rem 0;">
+        Cada dia combina um bloco <strong>denso</strong> (maior carga) e um bloco <strong>leve</strong> (menor carga), conforme a geracao do plano.
+      </p>
+
+      <div class="cycle-day-list">
+        <% cycleDays.forEach((day) => { %>
+          <div class="cycle-day-card">
+            <div class="cycle-day-card__head">
+              <span class="cycle-day-badge">Dia <%= day.order %></span>
+              <span class="cycle-day-total"><%= day.denseTimeMinutes + day.lightTimeMinutes %> min no dia</span>
+            </div>
+            <div class="cycle-day-card__blocks">
+              <div class="cycle-day-block cycle-day-block--dense">
+                <span class="cycle-day-block__label">Denso</span>
+                <span class="cycle-day-block__name"><%= day.denseSubject %></span>
+                <span class="cycle-day-block__time"><%= day.denseTimeMinutes %> min</span>
+              </div>
+              <div class="cycle-day-block cycle-day-block--light">
+                <span class="cycle-day-block__label">Leve</span>
+                <span class="cycle-day-block__name"><%= day.lightSubject %></span>
+                <span class="cycle-day-block__time"><%= day.lightTimeMinutes %> min</span>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  <% } else { %>
+    <div class="card" style="margin-bottom:1.25rem;">
+      <p style="margin:0; font-size:0.9rem; color:var(--text-secondary);">
+        Este ciclo nao possui plano diario salvo (tipico de ciclos criados apenas de forma manual). Edite o ciclo para ajustar disciplinas e tempos.
+      </p>
+    </div>
+  <% } %>
+
+  <div class="form-card">
+    <h2 style="font-size:1rem; font-weight:700; margin:0 0 0.75rem 0;">Disciplinas do ciclo</h2>
+    <div class="cycle-subjects-preview" style="margin-bottom:0;">
+      <% cycle.subjects.forEach((s) => { %>
+        <div class="subject-pill-sm">
+          <%= s.name %>
+          <span style="opacity:0.65; margin-left:4px;"><%= s.durationMinutes %>m</span>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <div class="form-actions" style="margin-top:1.25rem; padding:0;">
+    <% if (!cycle.isActive) { %>
+      <form action="/cycles/<%= cycle._id %>/activate" method="POST" style="flex:1;">
+        <button type="submit" class="btn btn--primary btn--full">Ativar este ciclo</button>
+      </form>
+    <% } else { %>
+      <a href="/sessions/focus" class="btn btn--primary btn--full" style="justify-content:center;">Iniciar estudo</a>
+    <% } %>
+  </div>
+</div>

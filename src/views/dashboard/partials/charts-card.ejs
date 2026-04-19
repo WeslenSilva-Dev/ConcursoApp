@@ -1,0 +1,21 @@
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Desempenho da semana</h2>
+  </div>
+  <div class="chart-wrap">
+    <canvas id="weekChart"></canvas>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header">
+    <h2 class="card-title">Tempo por disciplina</h2>
+  </div>
+  <% if (JSON.parse(subjectLabels).length > 0) { %>
+    <div class="chart-wrap chart-wrap--doughnut">
+      <canvas id="subjectChart"></canvas>
+    </div>
+  <% } else { %>
+    <div class="empty-state empty-state--sm"><p>Estude para ver seus dados aqui</p></div>
+  <% } %>
+</div>

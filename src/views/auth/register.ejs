@@ -1,0 +1,66 @@
+<div class="auth-card">
+  <div class="auth-brand">
+    <div class="auth-brand-icon">AI</div>
+    <h1 class="auth-brand-name">ConcursoApp</h1>
+    <p class="auth-brand-tagline">Comece a estudar de forma inteligente</p>
+  </div>
+
+  <h2 class="auth-title">Criar conta gratis</h2>
+
+  <% if (error) { %>
+    <div class="alert alert--danger"><%= error %></div>
+  <% } %>
+
+  <form class="auth-form" action="/auth/register" method="POST" id="registerForm" novalidate>
+    <div class="form-group">
+      <label class="form-label" for="name">Nome completo</label>
+      <input
+        class="form-input"
+        type="text"
+        id="name"
+        name="name"
+        placeholder="Seu nome"
+        value="<%= locals.body ? body.name || '' : '' %>"
+        autocomplete="name"
+        minlength="2"
+        maxlength="100"
+        required
+      >
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="email">Email</label>
+      <input
+        class="form-input"
+        type="email"
+        id="email"
+        name="email"
+        placeholder="seu@email.com"
+        value="<%= locals.body ? body.email || '' : '' %>"
+        autocomplete="email"
+        spellcheck="false"
+        required
+      >
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Senha</label>
+      <input
+        class="form-input"
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Minimo 6 caracteres"
+        autocomplete="new-password"
+        minlength="6"
+        required
+      >
+    </div>
+
+    <button class="btn btn--primary btn--full" type="submit" id="registerBtn">Criar conta</button>
+  </form>
+
+  <p class="auth-footer">
+    Ja tem conta? <a href="/auth/login" class="auth-link">Entrar</a>
+  </p>
+</div>
